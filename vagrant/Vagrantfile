@@ -1,0 +1,22 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.provider "virtualbox" do |vb|
+    vb.gui = false
+    vb.memory = "2048"
+  end
+
+  config.vm.network :forwarded_port, guest: 2181, host: 2181
+  config.vm.network :forwarded_port, guest: 9094, host: 9094
+  config.vm.provision :ansible do |ansible|
+    ansible.galaxy_role_file = "requirements.yml"
+    ansible.tags = "deploy"
+    ansible.playbook = "install.yml"
+    ansible.extra_vars = {
+      "kafka_broker_id": 1,
+      "kafka_listen_address": "localhost"
+    }
+  end
+end

@@ -1,0 +1,3 @@
+---
+- name: stop kafka
+  service: name=kafka state=stopped

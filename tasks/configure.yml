@@ -1,0 +1,49 @@
+---
+- name: detect if this is a systemd based system
+  command: cat /proc/1/comm
+  register: init
+
+- set_fact: use_systemd=True
+  when: init.stdout == 'systemd'
+
+- set_fact: use_systemd=False
+  when: init.stdout != 'systemd'
+
+- name: create upstart config
+  template: dest={{kafka_upstart_conf}} owner=root group=root mode=644 src=kafka.conf.j2
+  when: not use_systemd
+
+- name: create systemd config
+  template: dest={{kafka_systemd_service}} owner=root group=root mode=644 src=kafka.service.j2
+  when: use_systemd
+
+- command: systemctl daemon-reload
+  when: use_systemd
+
+- name: create data_dir
+  file: path={{kafka_data_dir}} state=directory owner={{kafka_user}} group={{kafka_group}} mode=755
+
+- name: remove lost+found in the datadir
+  file: path="{{kafka_data_dir}}/lost+found" state=absent
+
+- name: create log_dir
+  file: path={{kafka_log_dir}} state=directory owner={{kafka_user}} group={{kafka_group}} mode=755
+
+- name: link conf_dir to /opt/kafka/config
+  file: path={{kafka_conf_dir}} state=link src=/opt/kafka/config
+
+- name: create log4j.properties
+  template: dest={{kafka_conf_dir}}/log4j.properties owner={{kafka_user}} group={{kafka_group}} mode=644 src=log4j.properties.j2
+
+- name: copy logrotate config
+  template: dest=/etc/logrotate.d/kafka owner=root group=root mode=644 src=logrotate.conf.j2
+
+- name: create server.properties
+  template: dest={{kafka_conf_dir}}/server.properties owner={{kafka_user}} group={{kafka_group}} mode=644 src=server.properties.j2
+
+# SASL Setup
+- name: copy SASL config file
+  template: src=kafka_server_jaas.conf.j2 dest={{kafka_conf_dir}}/kafka_server_jaas.conf owner={{kafka_user}} group={{kafka_group}} mode=640
+  when: kafka_sasl_enabled
+
+- meta: flush_handlers

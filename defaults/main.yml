@@ -1,0 +1,68 @@
+---
+# setup
+kafka_version: 0.10.2.1
+kafka_download_url: 'http://apache.mirrors.tds.net/kafka/{{kafka_version}}/kafka_2.12-{{kafka_version}}.tgz'
+kafka_binary_archive: /opt/kafka_2.12-{{kafka_version}}.tgz
+kafka_binary_dir: /opt/kafka_2.12-{{kafka_version}}
+kafka_listen_address: "{{inventory_hostname}}"
+
+# Kafka configuration
+kafka_group: kafka
+kafka_user: kafka
+kafka_conf_dir: /etc/kafka
+kafka_data_dir: /data/kafka
+kafka_log_dir: /var/log/kafka
+kafka_upstart_conf: /etc/init/kafka.conf
+kafka_systemd_service: /etc/systemd/system/kafka.service
+kafka_auto_create_topics: true
+kafka_delete_topic: false
+kafka_broker_id_generation_enable: true
+
+# Kafka defaults
+kafka_num_network_threads: 3
+kafka_num_io_threads: 8
+kafka_num_partitions: 1
+kafka_socket_send_buffer_bytes: 102400
+kafka_socket_receive_buffer_bytes: 102400
+kafka_socket_request_max_bytes: 104857600
+kafka_log_flush_interval_messages: 9223372036854775807
+kafka_log_flush_interval_ms: 1000
+kafka_log_retention_bytes: -1
+kafka_log_retention_hours: 168
+kafka_log_segment_bytes: 1073741824
+kafka_heap_opts: '-Xmx1G -Xms1G'
+kafka_opts:
+kafka_jmx_opts:
+
+kafka_listeners: 'PLAINTEXT://{{kafka_listen_address}}:9092'
+
+###### Kafka Security ######
+kafka_security_inter_broker_protocol: PLAINTEXT
+
+### Encryption ###
+kafka_ssl_enabled: false
+kafka_ssl_endpoint_identification_algorithm:
+kafka_ssl_client_auth: none
+
+kafka_ssl_keystore_location:
+kafka_ssl_keystore_password:
+kafka_ssl_key_password:
+kafka_ssl_truststore_location:
+kafka_ssl_truststore_password:
+
+### Authentication ###
+kafka_sasl_enabled: false
+kafka_sasl_mechanism_inter_broker_protocol:
+kafka_sasl_enabled_mechanisms:
+kafka_users:
+
+### Authorization ###
+kafka_authorizer_class_name: kafka.security.auth.SimpleAclAuthorizer
+kafka_allow_everyone_if_no_acl_found: false
+
+# Zookeeper defaults
+zookeeper_hosts: 'localhost:2181'
+zookeeper_connection_timeout_ms: 6000
+zookeeper_set_acl: false
+
+verify: true

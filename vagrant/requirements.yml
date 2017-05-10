@@ -1,0 +1,3 @@
+---
+- src: https://github.com/samitpatel/ansible-zookeeper
+  name: zookeeper

@@ -1,0 +1,8 @@
+---
+- hosts: all
+  become: yes
+  become_method: sudo
+  serial: 1
+  roles:
+    - zookeeper
+    - ansible-kafka

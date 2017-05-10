@@ -1,0 +1,50 @@
+---
+## Install Java
+
+- name: java | Accept Oracle license prior JDK installation
+  shell: echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections; echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections
+    creates=/usr/lib/jvm/java-8-oracle
+
+- name: java | add repository
+  apt_repository:
+    repo=ppa:webupd8team/java
+    state=present
+
+- name: update repositories cache
+  apt: update_cache=yes
+
+- name: java | Install dependencies
+  apt:
+    pkg=oracle-java8-installer
+    state=present
+
+
+## Install Kafka
+
+- name: setup group
+  group: name={{kafka_group}} system=yes
+
+- name: setup user
+  user: name={{kafka_user}} system=yes group={{kafka_group}}
+
+- name: download kafka
+  get_url:
+    url={{kafka_download_url}}
+    dest={{kafka_binary_archive}}
+    owner={{kafka_user}}
+    group={{kafka_group}}
+
+- name: uncompress the kafka tar
+  unarchive:
+    src={{kafka_binary_archive}}
+    dest=/opt
+    creates={{kafka_binary_dir}}
+    copy=no
+    owner={{kafka_user}}
+    group={{kafka_group}}
+
+- name: link /opt/kafka to the right version
+  file:
+    src={{kafka_binary_dir}}
+    path=/opt/kafka
+    state=link

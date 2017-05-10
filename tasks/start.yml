@@ -1,0 +1,29 @@
+---
+- name: enable and start kafka
+  service: name=kafka state=started enabled=yes
+
+- set_fact: kafka_ports="[]"
+
+- name: should PLAINTEXT listener be verified?
+  set_fact: kafka_ports="['9092']"
+  when: verify and not kafka_ssl_enabled and not kafka_sasl_enabled
+
+- name: should SSL listener be verified?
+  set_fact: kafka_ports="{{kafka_ports}} + ['9093']"
+  when: verify and kafka_ssl_enabled and not kafka_sasl_enabled
+
+- name: should SASL_PLAINTEXT listener be verified?
+  set_fact: kafka_ports="{{kafka_ports}} + ['9094']"
+  when: verify and kafka_sasl_enabled and not kafka_ssl_enabled
+
+- name: should SASL_SSL listener be verified?
+  set_fact: kafka_ports="{{kafka_ports}} + ['9095']"
+  when: verify and kafka_sasl_enabled and kafka_ssl_enabled
+
+- debug: msg="ports to verify {{kafka_ports}}"
+
+- name: wait for kafka ports
+  wait_for: host={{kafka_listen_address | default('localhost')}} port={{item}} state=started timeout=30
+  with_items:
+    - "{{kafka_ports}}"
+  when: verify

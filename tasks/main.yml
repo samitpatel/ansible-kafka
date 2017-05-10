@@ -1,0 +1,9 @@
+---
+- include: stop.yml
+  tags: [deploy, restart, stop]
+- include: install.yml
+  tags: [deploy]
+- include: configure.yml
+  tags: [deploy, configure]
+- include: start.yml
+  tags: [deploy, restart]

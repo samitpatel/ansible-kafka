@@ -1,0 +1,25 @@
+KafkaServer {
+  org.apache.kafka.common.security.plain.PlainLoginModule required
+
+  // User used for inter-broker-communication
+  username="admin"
+  password="{{kafka_admin_password}}"
+
+  // User definitions
+  user_admin="{{kafka_admin_password}}"
+  {%- for user in kafka_users -%}
+    {%- for username, password in user.items() %}
+
+  user_{{username}}="{{password}}"
+    {%- endfor -%}
+  {%- endfor -%};
+};
+
+{% if zookeeper_set_acl %}
+// Zookeeper Client authentication
+Client {
+  org.apache.kafka.common.security.plain.PlainLoginModule required
+  username="{{zookeeper_username}}"
+  password="{{zookeeper_password}}";
+};
+{% endif %}
